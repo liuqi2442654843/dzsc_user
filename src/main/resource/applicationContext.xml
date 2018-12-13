@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:jaxws="http://cxf.apache.org/jaxws"
+       xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/jdbc 
+       http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+               http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+                http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+         http://cxf.apache.org/jaxws
+        http://cxf.apache.org/schemas/jaxws.xsd
+                http://cxf.apache.org/jaxrs
+        http://cxf.apache.org/schemas/jaxrs.xsd
+       ">
+
+    <context:property-placeholder location="classpath:dbConfig.properties" />
+
+    <context:component-scan base-package="top.liuqi321.service"
+                            use-default-filters="false">
+        <context:include-filter type="annotation"
+                                expression="org.springframework.stereotype.Service" />
+    </context:component-scan>
+
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName" value="${driverClassName}" />
+        <property name="url" value="${url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+    </bean>
+
+    <bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <property name="configLocation" value="classpath:mybatis-config.xml" />
+    </bean>
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="top.liuqi321.mapper" />
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryBean" />
+    </bean>
+
+    <jaxws:endpoint address="/ws" implementorClass="top.liuqi321.server.TestServletInf">
+        <jaxws:implementor>
+            <bean class="top.liuqi321.server.TestServletImpl"></bean>
+        </jaxws:implementor>
+    </jaxws:endpoint>
+
+    <jaxws:endpoint address="/login" implementorClass="top.liuqi321.server.LoginServerInf">
+        <jaxws:implementor>
+            <bean class="top.liuqi321.server.LoginServerImpl"></bean>
+        </jaxws:implementor>
+    </jaxws:endpoint>
+
+
+    <jaxrs:server address="/loginRest">
+        <jaxrs:serviceBeans>
+            <bean class="top.liuqi321.server.LoginServerImpl"></bean>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
+
+
+</beans>
